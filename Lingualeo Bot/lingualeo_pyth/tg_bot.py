@@ -452,17 +452,21 @@ async def start_training(message: Message, state: FSMContext):
                 other_words = [w for j, w in enumerate(user_words) if j != i]
                 random.shuffle(other_words)
                 
+                # Собираем существующие значения переводов для проверки дубликатов
+                existing_values = [t['value'] for t in word['translates']]
+                
                 for other_word in other_words:
                     if len(word['translates']) >= 4:
                         break
-                    # Проверяем что этого перевода еще нет
-                    other_id = other_word.get('translate_id', 0)
-                    existing_ids = [t['id'] for t in word['translates']]
-                    if other_id not in existing_ids:
+                    other_value = other_word.get('correct_translate_value', '')
+                    # Проверяем что этого перевода еще нет (по значению, не по ID)
+                    if other_value and other_value not in existing_values:
+                        # Используем word_id другого слова как уникальный ID для неправильного варианта
                         word['translates'].append({
-                            'id': other_id,
-                            'value': other_word.get('correct_translate_value', '')
+                            'id': other_word.get('word_id', 0),
+                            'value': other_value
                         })
+                        existing_values.append(other_value)
                 
                 logger.debug(f"Слово '{word['word_value']}' translates padded to {len(word['translates'])} вариантов")
 
@@ -805,11 +809,17 @@ async def send_next_word(message: Message, state: FSMContext, client: LingualeoA
         # Добавляем неправильные варианты из других слов
         other_words = [w for w in training_words if w != current_word]
         random.shuffle(other_words)
-        for other_word in other_words[:3]:
-            translates.append({
-                'id': other_word.get('translate_id', 0),
-                'value': other_word.get('correct_translate_value', '')
-            })
+        existing_values = [correct_translate]
+        for other_word in other_words:
+            if len(translates) >= 4:
+                break
+            other_value = other_word.get('correct_translate_value', '')
+            if other_value and other_value not in existing_values:
+                translates.append({
+                    'id': other_word.get('word_id', 0),
+                    'value': other_value
+                })
+                existing_values.append(other_value)
     
     # Shuffle translates, но сохраняем correct_index=0 до shuffle
     shuffled_translates = translates.copy()
