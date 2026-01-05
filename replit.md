@@ -137,3 +137,33 @@ Key implementation files:
 - `save_ruseng_results()` / `load_ruseng_results()` - Cache management
 - `send_next_ruseng_word()` - Skips already-answered words
 - `handle_training_answer()` - Early duplicate detection using callback_word_id
+
+## Vocabulary Management Commands
+
+### `/dictionary` Command
+- Displays user's vocabulary with pagination (10 words per page)
+- Navigation buttons for browsing (◀️ Назад / ▶️ Далее)
+- Sorting options:
+  - 🔤 А-Я: Alphabetical by English word
+  - 📅 Дата: By next repetition date
+  - 🔴 Готовы: Only words due for review
+- Status indicators: 🔴 (due), 🟢 (not due), ⚪ (unknown)
+
+### `/wordstatus <word>` Command
+- Searches for word in both English and Russian columns
+- Displays word statistics:
+  - Translation
+  - Number of repetitions
+  - Current interval (hours)
+  - Ease factor
+  - Next review date with status
+- Shows up to 5 matching words for partial matches
+
+## Recent Changes
+
+**2026-01-05**
+- Added `/dictionary` command with pagination and sorting
+- Added `/wordstatus` command for individual word lookup
+- Changed RUS-ENG word selection to random sampling (was sequential)
+- Updated `/start` menu with categorized command list
+- Fixed keyboard construction to avoid empty rows (Telegram BadRequest)
