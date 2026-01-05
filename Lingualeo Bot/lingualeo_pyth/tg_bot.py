@@ -868,13 +868,18 @@ async def send_next_ruseng_word(message: Message, state: FSMContext):
 
     # Сохраняем правильный ответ
     correct_option_index = options.index(english_word)
+    
+    # Создаём shuffled_translate_ids для совместимости с handle_training_answer
+    # Для RUS-ENG используем индексы опций как placeholder (реальные translate_id не нужны)
+    shuffled_translate_ids = list(range(len(options)))
 
     await state.update_data(
         current_word_index=current_index,
         correct_option_index=correct_option_index,
-        current_word_id=current_word.get('word_id')
+        current_word_id=current_word.get('word_id'),
+        shuffled_translate_ids=shuffled_translate_ids
     )
-    logger.info(f"Состояние обновлено: current_word_index={current_index}, correct_option_index={correct_option_index}, current_word_id={current_word.get('word_id')}")
+    logger.info(f"Состояние обновлено: current_word_index={current_index}, correct_option_index={correct_option_index}, current_word_id={current_word.get('word_id')}, shuffled_translate_ids={shuffled_translate_ids}")
 
     total_words = len(training_words)
     counter_text = f"({current_index + 1}\\{total_words}) "
