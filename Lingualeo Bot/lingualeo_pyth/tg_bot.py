@@ -147,6 +147,44 @@ def load_training_results(user_id: int) -> dict:
         logger.error(f"Ошибка загрузки результатов тренировки: {e}")
         return {}
 
+def get_ruseng_results_path(user_id: int) -> str:
+    """
+    Получает путь к файлу с результатами RUS-ENG тренировки.
+    
+    ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: Этот файл хранит только локальные результаты,
+    которые не синхронизируются с сервером Lingualeo.
+    """
+    current_dir = Path(__file__).parent
+    return str(current_dir / f"ruseng_results_{user_id}.json")
+
+def save_ruseng_results(user_id: int, ruseng_results: dict) -> bool:
+    """
+    Сохраняет результаты RUS-ENG тренировки в локальный файл.
+    
+    ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: Результаты НЕ отправляются на сервер Lingualeo.
+    """
+    try:
+        path = get_ruseng_results_path(user_id)
+        with open(path, 'w', encoding='utf-8') as f:
+            json.dump(ruseng_results, f, ensure_ascii=False, indent=2)
+        logger.info(f"RUS-ENG результаты сохранены: {len(ruseng_results)} ответов для пользователя {user_id}")
+        return True
+    except Exception as e:
+        logger.error(f"Ошибка сохранения RUS-ENG результатов: {e}")
+        return False
+
+def load_ruseng_results(user_id: int) -> dict:
+    """Загружает результаты RUS-ENG тренировки из локального файла"""
+    try:
+        path = get_ruseng_results_path(user_id)
+        if os.path.exists(path):
+            with open(path, 'r', encoding='utf-8') as f:
+                return json.load(f)
+        return {}
+    except Exception as e:
+        logger.error(f"Ошибка загрузки RUS-ENG результатов: {e}")
+        return {}
+
 async def _handle_wrong_answer(data: dict, word_index: int, selected_option: int, wrong_answers: list):
     """Обрабатывает неправильный ответ пользователя"""
     try:
@@ -338,19 +376,51 @@ async def start_ruseng_training(message: Message, state: FSMContext):
 
         # Берем первые 10 слов
         training_words = due_words.head(10).to_dict('records')
+        
+        # Восстанавливаем результаты из кеша (защита от краша)
+        # ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: автосохранение защищает от потери данных
+        saved_results = load_ruseng_results(message.from_user.id)
+        
+        # Фильтруем сохранённые результаты — оставляем только слова из текущего батча
+        current_word_ids = {str(w.get('word_id')) for w in training_words}
+        filtered_results = {k: v for k, v in saved_results.items() if k in current_word_ids}
+        
+        if filtered_results:
+            logger.info(f"Восстановлены результаты для {len(filtered_results)} слов из кеша")
+            # Восстанавливаем счётчики на основе сохранённых результатов
+            restored_correct = sum(1 for v in filtered_results.values() if v)
+            restored_total = len(filtered_results)
+            
+            # Находим первое неотвеченное слово (по word_id, не по индексу!)
+            # Порядок слов мог измениться между сессиями
+            start_index = 0
+            for i, word in enumerate(training_words):
+                if str(word.get('word_id')) not in filtered_results:
+                    start_index = i
+                    break
+            else:
+                # Все слова отвечены — сразу завершаем
+                start_index = len(training_words)
+            
+            logger.info(f"Восстановление: {restored_total} ответов, продолжаем с индекса {start_index}")
+            await message.answer(f"♻️ Восстановлен прогресс: {restored_total}/{len(training_words)} слов уже отвечено")
+        else:
+            restored_correct = 0
+            restored_total = 0
+            start_index = 0
 
         # Сохраняем в состояние
         # ruseng_results: словарь {word_id: True/False} для отслеживания каждого ответа
         await state.update_data(
             training_words=training_words,
-            current_word_index=0,
-            correct_answers=0,
-            total_answers=0,
+            current_word_index=start_index,
+            correct_answers=restored_correct,
+            total_answers=restored_total,
             wrong_answers=[],
             user_id=message.from_user.id,
             vocab_df=df,
             training_type='rus_eng',
-            ruseng_results={}
+            ruseng_results=filtered_results
         )
         await state.set_state(Form.training_mode)
 
@@ -754,6 +824,18 @@ async def send_next_ruseng_word(message: Message, state: FSMContext):
     data = await state.get_data()
     training_words = data.get('training_words', [])
     current_index = data.get('current_word_index', 0)
+    ruseng_results = data.get('ruseng_results', {})
+
+    # Пропускаем уже отвеченные слова (для восстановления после краша)
+    while current_index < len(training_words):
+        word_id = str(training_words[current_index].get('word_id'))
+        if word_id not in ruseng_results:
+            break  # Нашли неотвеченное слово
+        logger.info(f"Пропускаем уже отвеченное слово index={current_index}, word_id={word_id}")
+        current_index += 1
+    
+    # Обновляем индекс в состоянии
+    await state.update_data(current_word_index=current_index)
 
     if current_index >= len(training_words):
         # Тренировка завершена
@@ -921,12 +1003,33 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
             return
 
         correct_option = data.get('correct_option_index', 0)
-        current_word_id = data.get('current_word_id')
         shuffled_translate_ids = data.get('shuffled_translate_ids', [])
-        
-        # Получаем правильный translate_id из текущего слова
+        training_type = data.get('training_type')
         training_words = data.get('training_words', [])
-        current_word = training_words[word_index] if word_index < len(training_words) else {}
+        
+        # Получаем word_id из callback (word_index), НЕ из состояния!
+        # Это защищает от устаревших callback от старых inline-кнопок
+        if word_index >= len(training_words):
+            logger.warning(f"Устаревший callback: word_index={word_index} >= len(training_words)={len(training_words)}")
+            await callback.answer("⏭️ Устаревший ответ")
+            return
+            
+        callback_word = training_words[word_index]
+        callback_word_id = str(callback_word.get('word_id'))
+        current_word_id = data.get('current_word_id')  # word_id текущего показанного слова
+        
+        # ⚠️ РАННЕЕ ОБНАРУЖЕНИЕ ДУБЛЕЙ для RUS-ENG (до обновления счётчиков!)
+        # Проверяем word_id из callback, не из состояния!
+        if training_type == 'rus_eng':
+            ruseng_results = data.get('ruseng_results', {})
+            if callback_word_id in ruseng_results:
+                logger.warning(f"RUS-ENG: Дублирующий callback для word_id={callback_word_id}, игнорируем (ранняя проверка)")
+                await callback.answer("⏭️ Это слово уже отвечено")
+                # НЕ вызываем send_next_ruseng_word чтобы не нарушить текущее состояние
+                return
+        
+        # Получаем правильный translate_id из слова callback
+        current_word = callback_word
         correct_translate_id = current_word.get('translate_id', 1)
 
         selected_translate_id = shuffled_translate_ids[selected_option]
@@ -936,7 +1039,7 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         correct_answers = data.get('correct_answers', 0) + (1 if is_correct else 0)
         total_answers = data.get('total_answers', 0) + 1
 
-        logger.info(f"Ответ пользователя {user_id}: правильный={is_correct}, word_id={current_word_id}, selected_option={selected_option}, correct_option={correct_option}, selected_translate_id={selected_translate_id}, correct_translate_id={correct_translate_id}")
+        logger.info(f"Ответ пользователя {user_id}: правильный={is_correct}, callback_word_id={callback_word_id}, selected_option={selected_option}, correct_option={correct_option}, selected_translate_id={selected_translate_id}, correct_translate_id={correct_translate_id}")
 
         # Обновляем статистику в состоянии
         await state.update_data(
@@ -948,12 +1051,16 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         # Обновляем результаты тренировки
         data = await state.get_data()
         
-        if data.get('training_type') == 'rus_eng':
+        if training_type == 'rus_eng':
             # ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: сохраняем результаты только локально
+            # Используем callback_word_id (из callback), не current_word_id (из состояния)
             ruseng_results = data.get('ruseng_results', {})
-            ruseng_results[str(current_word_id)] = is_correct
+            ruseng_results[callback_word_id] = is_correct
             await state.update_data(ruseng_results=ruseng_results)
-            logger.info(f"RUS-ENG: word_id={current_word_id}, is_correct={is_correct}, total_results={len(ruseng_results)}")
+            
+            # Автосохранение после каждого ответа (защита от потери данных)
+            save_ruseng_results(user_id, ruseng_results)
+            logger.info(f"RUS-ENG: word_id={callback_word_id}, is_correct={is_correct}, total_results={len(ruseng_results)}")
         else:
             # ENG-RUS: результаты отправляются на сервер Lingualeo
             # Для правильных ответов отправляем 1 (correct)
@@ -1125,12 +1232,25 @@ async def finish_ruseng_training(message: Message, state: FSMContext):
 
     # Обновляем интервалы для слов на основе РЕАЛЬНЫХ результатов
     now = datetime.now()
+    words_processed = 0
+    words_skipped = 0
     for word in training_words:
         word_id = word.get('word_id')
         # Используем ruseng_results для определения правильности ответа
-        is_correct = ruseng_results.get(str(word_id), False)
+        # Ключи в словаре хранятся как строки
+        word_id_str = str(word_id)
         
-        logger.info(f"Обрабатываем слово {word_id}: is_correct={is_correct}")
+        # Проверяем есть ли результат для этого слова
+        if word_id_str not in ruseng_results:
+            # Нет данных о результате — пропускаем, не трогаем интервалы
+            logger.warning(f"Нет результата для слова {word_id}, пропускаем (интервал не изменён)")
+            words_skipped += 1
+            continue
+            
+        is_correct = ruseng_results.get(word_id_str, False)
+        
+        logger.info(f"Обрабатываем слово {word_id} (key={word_id_str}): is_correct={is_correct}")
+        words_processed += 1
 
         if is_correct:
             vocab_df.loc[vocab_df['word_id'] == word_id, 'repetitions'] += 1
@@ -1151,9 +1271,27 @@ async def finish_ruseng_training(message: Message, state: FSMContext):
 
     # Сохраняем обновленный словарь
     vocab_path = get_user_vocabulary_path(message.from_user.id)
-    vocab_df['next_repetition_date'] = vocab_df['next_repetition_date'].dt.strftime('%Y-%m-%d %H:%M:%S')
-    vocab_df.to_csv(vocab_path, index=False, encoding='utf-8-sig')
-    logger.info(f"Словарь сохранен в {vocab_path}, обновлено {len(training_words)} слов")
+    csv_saved = False
+    try:
+        vocab_df['next_repetition_date'] = vocab_df['next_repetition_date'].dt.strftime('%Y-%m-%d %H:%M:%S')
+        vocab_df.to_csv(vocab_path, index=False, encoding='utf-8-sig')
+        csv_saved = True
+        logger.info(f"Словарь сохранен в {vocab_path}, обновлено {words_processed} слов, пропущено {words_skipped}")
+    except Exception as e:
+        logger.error(f"Ошибка сохранения словаря: {e}")
+    
+    # Очищаем кеш ТОЛЬКО после успешного сохранения CSV
+    # Если CSV не сохранился — кеш нужен для повторной попытки
+    if csv_saved:
+        try:
+            ruseng_path = get_ruseng_results_path(message.from_user.id)
+            if os.path.exists(ruseng_path):
+                os.remove(ruseng_path)
+                logger.info(f"Очищен временный файл RUS-ENG результатов: {ruseng_path}")
+        except Exception as e:
+            logger.warning(f"Не удалось очистить файл RUS-ENG результатов: {e}")
+    else:
+        logger.warning("Кеш RUS-ENG сохранён (CSV не сохранился)")
 
     # Показываем статистику
     result_text = f"""
