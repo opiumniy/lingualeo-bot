@@ -926,11 +926,11 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         )
 
         # Обновляем результаты тренировки
-        # Для правильных ответов отправляем correct_translate_id
-        # Для неправильных ответов отправляем 0 (сигнал ошибки для сервера)
+        # Для правильных ответов отправляем 1 (correct)
+        # Для неправильных ответов отправляем 2 (error - сервер уменьшит интервал повторения)
         data = await state.get_data()
         training_results = data.get('training_results', {})
-        training_results[str(current_word_id)] = correct_translate_id if is_correct else 0
+        training_results[str(current_word_id)] = 1 if is_correct else 2
         await state.update_data(training_results=training_results)
 
         # Отправляем обратную связь пользователю
