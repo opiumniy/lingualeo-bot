@@ -903,6 +903,11 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         correct_option = data.get('correct_option_index', 0)
         current_word_id = data.get('current_word_id')
         shuffled_translate_ids = data.get('shuffled_translate_ids', [])
+        
+        # Получаем правильный translate_id из текущего слова
+        training_words = data.get('training_words', [])
+        current_word = training_words[word_index] if word_index < len(training_words) else {}
+        correct_translate_id = current_word.get('translate_id', 1)
 
         selected_translate_id = shuffled_translate_ids[selected_option]
 
@@ -911,7 +916,7 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         correct_answers = data.get('correct_answers', 0) + (1 if is_correct else 0)
         total_answers = data.get('total_answers', 0) + 1
 
-        logger.info(f"Ответ пользователя {user_id}: правильный={is_correct}, word_id={current_word_id}, selected_translate_id={selected_translate_id}")
+        logger.info(f"Ответ пользователя {user_id}: правильный={is_correct}, word_id={current_word_id}, selected_translate_id={selected_translate_id}, correct_translate_id={correct_translate_id}")
 
         # Обновляем статистику в состоянии
         await state.update_data(
@@ -921,9 +926,11 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         )
 
         # Обновляем результаты тренировки
+        # Для правильных ответов отправляем correct_translate_id
+        # Для неправильных ответов отправляем 0 (сигнал ошибки для сервера)
         data = await state.get_data()
         training_results = data.get('training_results', {})
-        training_results[str(current_word_id)] = selected_translate_id
+        training_results[str(current_word_id)] = correct_translate_id if is_correct else 0
         await state.update_data(training_results=training_results)
 
         # Отправляем обратную связь пользователю
