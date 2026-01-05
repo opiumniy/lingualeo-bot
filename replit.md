@@ -108,5 +108,32 @@ Lingualeo Bot/
 
 ### File Storage
 - Cookies: Plain text files in project root and `User_Cookies/`
-- Vocabulary: CSV files (`vocabulary.csv`)
-- Training results: JSON files (`training_results_<user_id>.json`)
+- Vocabulary: CSV files (`vocabulary.csv`, `vocabulary_{user_id}.csv`)
+- Training results: JSON files (`training_results_{user_id}.json`, `ruseng_results_{user_id}.json`)
+
+## Training Types
+
+### ENG-RUS Training (`/rep_engrus`)
+- Shows English word, user selects Russian translation
+- **Syncs with Lingualeo server**: Results are sent to API with status codes (1=correct, 2=error)
+- Server manages spaced repetition intervals
+
+### RUS-ENG Training (`/rep_ruseng`)
+- Shows Russian word, user selects English translation
+- **PURELY LOCAL**: Results are NOT sent to Lingualeo server (API doesn't support this training type)
+- Spaced repetition managed locally in `vocabulary_{user_id}.csv`
+- Intervals stored in local CSV file
+
+## Crash Recovery (RUS-ENG)
+
+The RUS-ENG training includes crash recovery to prevent data loss:
+
+1. **Auto-save**: After each answer, results are saved to `ruseng_results_{user_id}.json`
+2. **Session recovery**: On training start, loads saved results and resumes from first unanswered word
+3. **Stale callback protection**: Old inline buttons from previous sessions are safely ignored
+4. **Safe cleanup**: Cache only deleted after successful vocabulary CSV update
+
+Key implementation files:
+- `save_ruseng_results()` / `load_ruseng_results()` - Cache management
+- `send_next_ruseng_word()` - Skips already-answered words
+- `handle_training_answer()` - Early duplicate detection using callback_word_id
