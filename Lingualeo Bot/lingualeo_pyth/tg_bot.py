@@ -328,15 +328,22 @@ def check_cache_status_before_training(user_id: int) -> dict:
 @dp.message(Command("start"))
 async def send_welcome(message: Message):
     commands = r"""
- Доступные команды:
- /start - Начать работу с ботом
- /login - Войти в аккаунт Lingualeo
- /addword - Добавить новое слово
- /rep_engrus - Тренировка английских слов с русским переводом
- /rep_ruseng - Тренировка русских слов с английским переводом (локальная)
- /update_vocab - Обновить словарь из Lingualeo
- /send_results - Отправить сохраненные результаты тренировки на сервер
- /checkwordstorepeat - Проверить количество слов для повторения
+📚 Доступные команды:
+
+🎓 ТРЕНИРОВКИ:
+/rep_engrus - Тренировка ENG→RUS (синхронизация с Lingualeo)
+/rep_ruseng - Тренировка RUS→ENG (локальная)
+
+📖 СЛОВАРЬ:
+/dictionary - Просмотр всех слов с пагинацией
+/wordstatus <слово> - Статус конкретного слова
+/update_vocab - Обновить словарь из Lingualeo
+/addword - Добавить новое слово
+
+⚙️ ПРОЧЕЕ:
+/login - Войти в аккаунт Lingualeo
+/send_results - Отправить результаты ENG-RUS на сервер
+/checkwordstorepeat - Проверить слова для повторения
      """
     await message.answer(commands)
 
@@ -374,8 +381,9 @@ async def start_ruseng_training(message: Message, state: FSMContext):
             await message.answer("✅ Все слова изучены! Обновите словарь командой /update_vocab для новых слов.")
             return
 
-        # Берем первые 10 слов
-        training_words = due_words.head(10).to_dict('records')
+        # Берем случайные 10 слов (рандомная выборка)
+        sample_size = min(10, len(due_words))
+        training_words = due_words.sample(n=sample_size).to_dict('records')
         
         # Восстанавливаем результаты из кеша (защита от краша)
         # ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: автосохранение защищает от потери данных
@@ -1815,6 +1823,196 @@ async def check_words_to_repeat(message: Message):
     except Exception as e:
         logger.error(f"Неожиданная ошибка в checkwordstorepeat: {e}")
         await message.answer("❌ Произошла ошибка при проверке слов для повторения")
+
+
+@dp.message(Command("wordstatus"))
+async def word_status(message: Message):
+    """Показывает статус конкретного слова из локального словаря"""
+    user_id = message.from_user.id
+    logger.info(f"wordstatus вызвана пользователем {user_id}")
+    
+    # Получаем слово из команды
+    args = message.text.split(maxsplit=1)
+    if len(args) < 2:
+        await message.answer("❓ Использование: /wordstatus <слово>\n\nПример: /wordstatus hello")
+        return
+    
+    search_word = args[1].strip().lower()
+    
+    # Загружаем словарь пользователя
+    vocab_path = get_user_vocabulary_path(user_id)
+    if not os.path.exists(vocab_path):
+        await message.answer("❌ У вас нет локального словаря. Сначала обновите словарь командой /update_vocab")
+        return
+    
+    import pandas as pd
+    df = pd.read_csv(vocab_path)
+    
+    # Ищем слово (по английскому или русскому)
+    mask = (df['english'].str.lower().str.contains(search_word, na=False)) | \
+           (df['russian'].str.lower().str.contains(search_word, na=False))
+    matches = df[mask]
+    
+    if len(matches) == 0:
+        await message.answer(f"❌ Слово '{search_word}' не найдено в словаре")
+        return
+    
+    # Показываем первые 5 совпадений
+    results = []
+    for _, row in matches.head(5).iterrows():
+        english = row.get('english', 'N/A')
+        russian = row.get('russian', 'N/A')
+        repetitions = row.get('repetitions', 0)
+        interval = row.get('interval_hours', 0)
+        ease = row.get('ease_factor', 2.5)
+        next_date = row.get('next_repetition_date', 'N/A')
+        
+        # Определяем статус
+        try:
+            next_dt = pd.to_datetime(next_date)
+            if next_dt <= datetime.now():
+                status = "🔴 Готово к повторению"
+            else:
+                status = f"🟢 Следующее: {next_dt.strftime('%d.%m %H:%M')}"
+        except:
+            status = "⚪ Неизвестно"
+        
+        result = f"""
+📖 **{english}**
+🇷🇺 {russian}
+
+📊 Статистика:
+• Повторений: {repetitions}
+• Интервал: {interval:.1f} ч.
+• Ease: {ease:.2f}
+• {status}
+"""
+        results.append(result)
+    
+    header = f"🔍 Найдено: {len(matches)} слов\n" if len(matches) > 5 else ""
+    await message.answer(header + "\n---".join(results), parse_mode="Markdown")
+
+
+@dp.message(Command("dictionary"))
+async def show_dictionary(message: Message, state: FSMContext):
+    """Показывает словарь с пагинацией"""
+    user_id = message.from_user.id
+    logger.info(f"dictionary вызвана пользователем {user_id}")
+    
+    # Загружаем словарь пользователя
+    vocab_path = get_user_vocabulary_path(user_id)
+    if not os.path.exists(vocab_path):
+        await message.answer("❌ У вас нет локального словаря. Сначала обновите словарь командой /update_vocab")
+        return
+    
+    import pandas as pd
+    df = pd.read_csv(vocab_path)
+    
+    total_words = len(df)
+    page = 0
+    per_page = 10
+    
+    await state.update_data(dict_page=page, dict_sort='alpha')
+    await send_dictionary_page(message, df, page, per_page, 'alpha')
+
+
+async def send_dictionary_page(message: Message, df, page: int, per_page: int, sort_by: str):
+    """Отправляет страницу словаря"""
+    import pandas as pd
+    
+    # Сортировка
+    if sort_by == 'alpha':
+        df_sorted = df.sort_values('english', ascending=True)
+    elif sort_by == 'date':
+        df_sorted = df.sort_values('next_repetition_date', ascending=True)
+    elif sort_by == 'due':
+        now = datetime.now()
+        df['next_repetition_date'] = pd.to_datetime(df['next_repetition_date'])
+        df_sorted = df[df['next_repetition_date'] <= now].sort_values('next_repetition_date')
+    else:
+        df_sorted = df
+    
+    total_words = len(df_sorted)
+    total_pages = (total_words + per_page - 1) // per_page
+    
+    if total_words == 0:
+        await message.answer("📚 Словарь пуст")
+        return
+    
+    start_idx = page * per_page
+    end_idx = min(start_idx + per_page, total_words)
+    page_df = df_sorted.iloc[start_idx:end_idx]
+    
+    # Формируем текст
+    lines = [f"📚 Словарь ({start_idx+1}-{end_idx} из {total_words})\n"]
+    
+    for _, row in page_df.iterrows():
+        english = row.get('english', 'N/A')[:30]
+        russian = row.get('russian', 'N/A')[:20]
+        
+        try:
+            next_dt = pd.to_datetime(row.get('next_repetition_date'))
+            if next_dt <= datetime.now():
+                status = "🔴"
+            else:
+                status = "🟢"
+        except:
+            status = "⚪"
+        
+        lines.append(f"{status} {english} — {russian}")
+    
+    # Кнопки навигации
+    nav_buttons = []
+    if page > 0:
+        nav_buttons.append(InlineKeyboardButton(text="◀️ Назад", callback_data=f"dict_page_{page-1}_{sort_by}"))
+    if page < total_pages - 1:
+        nav_buttons.append(InlineKeyboardButton(text="▶️ Далее", callback_data=f"dict_page_{page+1}_{sort_by}"))
+    
+    # Кнопки сортировки
+    sort_buttons = [
+        InlineKeyboardButton(text="🔤 А-Я" if sort_by != 'alpha' else "✅ А-Я", callback_data=f"dict_sort_alpha_{page}"),
+        InlineKeyboardButton(text="📅 Дата" if sort_by != 'date' else "✅ Дата", callback_data=f"dict_sort_date_{page}"),
+        InlineKeyboardButton(text="🔴 Готовы" if sort_by != 'due' else "✅ Готовы", callback_data=f"dict_sort_due_{page}")
+    ]
+    
+    # Формируем клавиатуру без пустых строк
+    keyboard_rows = []
+    if nav_buttons:
+        keyboard_rows.append(nav_buttons)
+    keyboard_rows.append(sort_buttons)
+    
+    keyboard = InlineKeyboardMarkup(inline_keyboard=keyboard_rows)
+    
+    await message.answer("\n".join(lines), reply_markup=keyboard)
+
+
+@dp.callback_query(lambda c: c.data.startswith('dict_page_') or c.data.startswith('dict_sort_'))
+async def handle_dictionary_navigation(callback: CallbackQuery, state: FSMContext):
+    """Обработка навигации по словарю"""
+    user_id = callback.from_user.id
+    
+    vocab_path = get_user_vocabulary_path(user_id)
+    if not os.path.exists(vocab_path):
+        await callback.answer("❌ Словарь не найден")
+        return
+    
+    import pandas as pd
+    df = pd.read_csv(vocab_path)
+    
+    data = callback.data
+    
+    if data.startswith('dict_page_'):
+        parts = data.split('_')
+        page = int(parts[2])
+        sort_by = parts[3] if len(parts) > 3 else 'alpha'
+    elif data.startswith('dict_sort_'):
+        parts = data.split('_')
+        sort_by = parts[2]
+        page = int(parts[3]) if len(parts) > 3 else 0
+    
+    await callback.message.delete()
+    await send_dictionary_page(callback.message, df, page, 10, sort_by)
+    await callback.answer()
 
 
 def check_and_create_pid_file():
