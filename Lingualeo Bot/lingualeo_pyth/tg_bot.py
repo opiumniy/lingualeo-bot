@@ -920,7 +920,7 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         correct_answers = data.get('correct_answers', 0) + (1 if is_correct else 0)
         total_answers = data.get('total_answers', 0) + 1
 
-        logger.info(f"Ответ пользователя {user_id}: правильный={is_correct}, word_id={current_word_id}, selected_translate_id={selected_translate_id}, correct_translate_id={correct_translate_id}")
+        logger.info(f"Ответ пользователя {user_id}: правильный={is_correct}, word_id={current_word_id}, selected_option={selected_option}, correct_option={correct_option}, selected_translate_id={selected_translate_id}, correct_translate_id={correct_translate_id}")
 
         # Обновляем статистику в состоянии
         await state.update_data(
