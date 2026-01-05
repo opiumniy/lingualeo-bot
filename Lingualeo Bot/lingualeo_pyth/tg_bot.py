@@ -304,7 +304,16 @@ async def send_welcome(message: Message):
 
 @dp.message(Command("rep_ruseng"))
 async def start_ruseng_training(message: Message, state: FSMContext):
-    """Запуск локальной тренировки русских слов с английским переводом"""
+    """
+    Запуск локальной тренировки русских слов с английским переводом.
+    
+    ⚠️ ВАЖНО: Это ПОЛНОСТЬЮ ЛОКАЛЬНАЯ тренировка!
+    - Результаты НЕ отправляются на сервер Lingualeo (API не поддерживает)
+    - Интервалы повторения хранятся локально в vocabulary_{user_id}.csv
+    - Алгоритм spaced repetition реализован локально
+    
+    В отличие от /rep_engrus, которая синхронизируется с Lingualeo.
+    """
     logger.info(f"start_ruseng_training вызвана пользователем {message.from_user.id}")
 
     try:
@@ -331,6 +340,7 @@ async def start_ruseng_training(message: Message, state: FSMContext):
         training_words = due_words.head(10).to_dict('records')
 
         # Сохраняем в состояние
+        # ruseng_results: словарь {word_id: True/False} для отслеживания каждого ответа
         await state.update_data(
             training_words=training_words,
             current_word_index=0,
@@ -339,7 +349,8 @@ async def start_ruseng_training(message: Message, state: FSMContext):
             wrong_answers=[],
             user_id=message.from_user.id,
             vocab_df=df,
-            training_type='rus_eng'
+            training_type='rus_eng',
+            ruseng_results={}
         )
         await state.set_state(Form.training_mode)
 
@@ -733,7 +744,12 @@ async def add_word(message: Message, state: FSMContext):
         await message.answer("Произошла ошибка. Попробуй позже.")
 
 async def send_next_ruseng_word(message: Message, state: FSMContext):
-    """Отправляет следующее слово для RUS-ENG тренировки"""
+    """
+    Отправляет следующее слово для RUS-ENG тренировки.
+    
+    ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: Результаты сохраняются только локально,
+    не синхронизируются с сервером Lingualeo.
+    """
     logger.info("send_next_ruseng_word вызвана")
     data = await state.get_data()
     training_words = data.get('training_words', [])
@@ -930,15 +946,24 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         )
 
         # Обновляем результаты тренировки
-        # Для правильных ответов отправляем 1 (correct)
-        # Для неправильных ответов отправляем 2 (error - сервер уменьшит интервал повторения)
         data = await state.get_data()
-        training_results = data.get('training_results', {})
-        training_results[str(current_word_id)] = 1 if is_correct else 2
-        await state.update_data(training_results=training_results)
         
-        # Сохраняем результаты в файл после каждого ответа (автосохранение)
-        save_training_results(user_id, training_results)
+        if data.get('training_type') == 'rus_eng':
+            # ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: сохраняем результаты только локально
+            ruseng_results = data.get('ruseng_results', {})
+            ruseng_results[str(current_word_id)] = is_correct
+            await state.update_data(ruseng_results=ruseng_results)
+            logger.info(f"RUS-ENG: word_id={current_word_id}, is_correct={is_correct}, total_results={len(ruseng_results)}")
+        else:
+            # ENG-RUS: результаты отправляются на сервер Lingualeo
+            # Для правильных ответов отправляем 1 (correct)
+            # Для неправильных ответов отправляем 2 (error - сервер уменьшит интервал повторения)
+            training_results = data.get('training_results', {})
+            training_results[str(current_word_id)] = 1 if is_correct else 2
+            await state.update_data(training_results=training_results)
+            
+            # Сохраняем результаты в файл после каждого ответа (автосохранение)
+            save_training_results(user_id, training_results)
 
         # Отправляем обратную связь пользователю
         if is_correct:
@@ -1078,21 +1103,34 @@ async def finish_training(message: Message, state: FSMContext):
     await show_final_statistics(message, state, server_send_success, server_response, cache_cleanup_info)
 
 async def finish_ruseng_training(message: Message, state: FSMContext):
-    """Завершает RUS-ENG тренировку и обновляет интервалы"""
+    """
+    Завершает RUS-ENG тренировку и обновляет интервалы.
+    
+    ⚠️ ЛОКАЛЬНАЯ ТРЕНИРОВКА: 
+    - Интервалы обновляются ТОЛЬКО в локальном файле vocabulary_{user_id}.csv
+    - НЕ отправляется на сервер Lingualeo (API не поддерживает этот тип тренировки)
+    - Алгоритм spaced repetition реализован локально
+    """
     logger.info("finish_ruseng_training вызвана")
     data = await state.get_data()
     correct_answers = data.get('correct_answers', 0)
     total_answers = data.get('total_answers', 0)
     training_words = data.get('training_words', [])
     vocab_df = data.get('vocab_df')
+    ruseng_results = data.get('ruseng_results', {})  # {word_id: True/False}
 
     accuracy = (correct_answers / total_answers * 100) if total_answers > 0 else 0
+    
+    logger.info(f"RUS-ENG финал: ruseng_results={ruseng_results}")
 
-    # Обновляем интервалы для слов
+    # Обновляем интервалы для слов на основе РЕАЛЬНЫХ результатов
     now = datetime.now()
-    for i, word in enumerate(training_words):
+    for word in training_words:
         word_id = word.get('word_id')
-        is_correct = i < correct_answers  # Простая логика, улучшить позже
+        # Используем ruseng_results для определения правильности ответа
+        is_correct = ruseng_results.get(str(word_id), False)
+        
+        logger.info(f"Обрабатываем слово {word_id}: is_correct={is_correct}")
 
         if is_correct:
             vocab_df.loc[vocab_df['word_id'] == word_id, 'repetitions'] += 1
