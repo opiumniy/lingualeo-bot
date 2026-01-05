@@ -338,7 +338,8 @@ async def start_ruseng_training(message: Message, state: FSMContext):
             total_answers=0,
             wrong_answers=[],
             user_id=message.from_user.id,
-            vocab_df=df
+            vocab_df=df,
+            training_type='rus_eng'
         )
         await state.set_state(Form.training_mode)
 
@@ -489,6 +490,7 @@ async def start_training(message: Message, state: FSMContext):
             logger.info("Новые результаты тренировки")
 
         # Сохраняем слова для тренировки в состояние
+        # Очищаем vocab_df чтобы не путать с RUS-ENG тренировкой
         await state.update_data(
             training_words=user_words,
             current_word_index=0,
@@ -496,7 +498,9 @@ async def start_training(message: Message, state: FSMContext):
             total_answers=0,
             wrong_answers=[],
             training_results=existing_results,
-            user_id=message.from_user.id  # Сохраняем user_id в состоянии
+            user_id=message.from_user.id,
+            vocab_df=None,
+            training_type='eng_rus'
         )
         await state.set_state(Form.training_mode)
 
@@ -941,8 +945,8 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
 
         # Переходим к следующему слову
         if 'training_words' in data and len(data['training_words']) > word_index + 1:
-            # Определяем тип тренировки
-            if 'vocab_df' in data:
+            # Определяем тип тренировки по явному маркеру
+            if data.get('training_type') == 'rus_eng':
                 # RUS-ENG тренировка
                 await send_next_ruseng_word(callback.message, state)
             else:
@@ -952,7 +956,7 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
                 await send_next_word(callback.message, state, client)
         else:
             # Определяем тип тренировки для завершения
-            if 'vocab_df' in data:
+            if data.get('training_type') == 'rus_eng':
                 # RUS-ENG тренировка
                 await finish_ruseng_training(callback.message, state)
             else:
