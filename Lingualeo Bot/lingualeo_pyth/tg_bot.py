@@ -1230,8 +1230,11 @@ async def finish_ruseng_training(message: Message, state: FSMContext):
     training_words = data.get('training_words', [])
     vocab_df = data.get('vocab_df')
     ruseng_results = data.get('ruseng_results', {})  # {word_id: True/False}
+    # Используем user_id из состояния, т.к. message.from_user.id может быть ID бота при callback
+    user_id = data.get('user_id', message.from_user.id)
 
     accuracy = (correct_answers / total_answers * 100) if total_answers > 0 else 0
+    logger.info(f"finish_ruseng_training для user_id={user_id}")
     
     logger.info(f"RUS-ENG финал: ruseng_results={ruseng_results}")
 
@@ -1275,7 +1278,7 @@ async def finish_ruseng_training(message: Message, state: FSMContext):
             logger.info(f"Обновлено неправильное слово {word_id}: repetitions=0, interval=12, next_date={next_date}")
 
     # Сохраняем обновленный словарь
-    vocab_path = get_user_vocabulary_path(message.from_user.id)
+    vocab_path = get_user_vocabulary_path(user_id)
     csv_saved = False
     try:
         vocab_df['next_repetition_date'] = vocab_df['next_repetition_date'].dt.strftime('%Y-%m-%d %H:%M:%S')
@@ -1289,7 +1292,7 @@ async def finish_ruseng_training(message: Message, state: FSMContext):
     # Если CSV не сохранился — кеш нужен для повторной попытки
     if csv_saved:
         try:
-            ruseng_path = get_ruseng_results_path(message.from_user.id)
+            ruseng_path = get_ruseng_results_path(user_id)
             if os.path.exists(ruseng_path):
                 os.remove(ruseng_path)
                 logger.info(f"Очищен временный файл RUS-ENG результатов: {ruseng_path}")
