@@ -1,0 +1,31 @@
+curl ^"https://admanager.noon.partners/_svc/productads/suggestions/keywords/autocomplete^" ^
+  -H ^"accept: application/json, text/plain, */*^" ^
+  -H ^"accept-language: en-US,en;q=0.9,ru;q=0.8^" ^
+  -H ^"access-control-allow-origin: *^" ^
+  -H ^"baggage: sentry-environment=production,sentry-release=f9a11801366d4ec5db1b2d1e04f6e46b5e0ad939,sentry-public_key=838de52b3cc5250a5601d84173a85cc6,sentry-trace_id=0cebf8970b4d463f8c4edc1fcb135388,sentry-replay_id=1a5331397dc344ebafc0888c3e9fcb9f,sentry-sample_rate=1,sentry-transaction=^%^2Fcampaign^%^2Fv2,sentry-sampled=true^" ^
+  -H ^"cache-control: no-cache, max-age=0, must-revalidate, no-store^" ^
+  -H ^"content-type: application/json^" ^
+  -b ^"_ga=GA1.2.2069624084.1740734717; intercom-device-id-yba8j1xj=c5de635b-8703-4925-9191-d0cc23d0f9c3; visitor_id=040c4699-5aa1-4acb-9a50-c7e13adea5fd; noonStore=STR299533-NAE; rajyam=ae; nlang=en; bm_mi=F35255270F17E48E7F880AD92E8BCEBD~YAAQnfkUAlyyYzSZAQAAREC6Vx1+O6K3u5Tm7tdOBCBtGhiAvcVBWJZ3AeHUPAxBis5U1O+V6oTalPiPlN9tIzD8RvazZFvhSUXP0K762ZKNgRd1cNdnU88Pag00V0g38ZBrF/naJK58lNnId0AHR94fBaCpxcvKt78xM+d5YRuppAxD8cU3yACTkffYdMb6915TyO+QD2mjH4+nIqw4D/1e1aGPJUfkAo/9jICuav8QXW3Kg2vtNLgRuvZVVzKKJGehlazpkJgMBibfNVxMmP0LSvlIRIG+QYzMOkxaQITZjw3ndYdswNbYPVDQUM0brZ7j~1; ak_bmsc=CAC9B4BC467BB61FD4F02B8AE5CC507E~000000000000000000000000000000~YAAQnfkUAtOyYzSZAQAAQke6Vx1+45Hx4YN5Ie7w56ddTJNqri4iGn0dkP+8Xw0jF8/exbYB0ZCd3kfniBA9JG4hY1RQyobLrwwEEUmeEYm6Ngc215a20q5FkC1otPj50/MRpA+YGkoCg4+6QAOXAYYBCMvD4MNixFK03N5Nz9ykMccGB3gzWA+i35RjM2qErBPWKfe48KB98X/kz03Rs8GHO9r7/F0nhUK8nkHUmVM78LjHbPk6f/3an7GBTUiU7tvECtK0HOWXDuj+WrGJQwrlJHiQkpiOmnMr9shyB7BxZj54idsEqOTvcPGtlbb4uARMye9PZwC+Gw4xnnjqbNk0SI7Ax/JmjO+2ECRuU/jhV0r0QHuVS0Xd951Fxd9QrNl40D18BRO7zLq8vdO9zPt644TAkbcLuo76qAdDr6brx57RWwJI5UwTgzSqdBZNbrzKEW1+haeJCpXgZWcBFuAuTjDhGjU33yf+4bMHxy7gNaDhEgw=; _clck=k3wqaw^%^5E2^%^5Efze^%^5E0^%^5E1877; _hjHasCachedUserAttributes=true; AKA_A2=A; next_url=https^%^3A^%^2F^%^2Fadmanager.noon.partners^%^2Fen-ae^%^2Fcampaign^%^2Fv2; _npsid=ab4c3136f1ca4a6c9c14ee6fefe8ea81; _nprtnetid=^\^"nav1.public.eyJ1aWQiOiJwcmQtYWJiNDRkNDZkNGE1NGNmYzQxZTQ3MDc0ODFAaWRwLm5vb24ucGFydG5lcnMiLCJjbGllbnRfY29kZSI6IndlYiIsInVzZXJfY29kZSI6InByZC1hYmI0NGQ0NmQ0YTU0Y2ZjNDFlNDcwNzQ4MUBpZHAubm9vbi5wYXJ0bmVycyIsImVtYWlsIjoiemFoaWRAcDI5OTUzMy5pZHAubm9vbi5wYXJ0bmVycyIsInVzZXJuYW1lIjoiemFoaWRAcDI5OTUzMy5pZHAubm9vbi5wYXJ0bmVycyIsImlkcF9yb2xlIjoiYWRtaW4iLCJkb21haW5fdHlwZSI6ImxvY2FsIiwiaWF0IjoxNzU4MTE5Njg4LCJzaWQiOiJhYjRjMzEzNmYxY2E0YTZjOWMxNGVlNmZlZmU4ZWE4MSIsInRpZCI6Ijg3NzZhZWJhYTAwZjQxNzc4YzVlOTAzOTliMDE1ZDc1IiwiaG9zdCI6ImxvZ2luLm5vb24ucGFydG5lcnMiLCJkZXZpY2UiOm51bGwsImF1ZCI6W10sInJldGFpbGVyX2NvZGUiOiIiLCJwcm9qZWN0X2NvZGUiOiJQUkoyOTk1MzMiLCJpZF9wYXJ0bmVyIjoiMjk5NTMzIn1BeE0wYXBsM0ZVTFZwL2thcEdIQ3F4VzJDcXhnSGp5Yk84ODZEa3VnQ0xlZzRjOTJORnJrdGJWK1pIVW4zaFNxQy9VaFhCSjRWL01oQTRFYWRZS1NOalgvS294T0tybTdDb3dOTE02NmZVZFhrTUNjUUtobElESnVlZlF3TVc4N0VvV2txQnR3L3lVTzFmZzQvUUZteFNvVWp6a2lKSTdoN2F0ZEh5ZXF1cklHc2I1QVFQUkxJeG5LMHFIeU5nWGE2b3UzemUzY3p6d2szUmFsTW5ZUm5xU0VqaDkrdnpqMytyKy9FVy9MMXg4SDV4aStSZUR5RWpndEt4bU80K1JtamJFa0lYZGowaGh1RGNxcUFQSG9RTDZOSE0yYXhhcjhwN3ljVDFPT25ySnFGaUsxMjltUGp0NC96cEl1aUQ4MjR2U3BxTDVZMmdsOWZMQmVkeGEvbG51WmlxSEFJdmxER3VvQnErUmJMTDhiRW4wTG5lLzAvVGo4UzEwRWZkckVZcTdhOVdHMlBacHptUjkzWld5WVZoWTBjR296WXVZMkY2dkozeFpRWksvcVRIK21zRk1YT2JuSG42VFFNVHN5NUNSdXM3bldoMkZNY2xCamtOYklYazk5WkFWR0J4UWxhNHN4NGJBR1pDc2xrVURUS3NSVjdmNkJ6V0Z1S081TQ==.MQ==^\^"; projectCode=PRJ299533; RT=^\^"z=1^&dm=admanager.noon.partners^&si=a124c3b6-667b-4feb-8b37-3e3249ee3557^&ss=mfo2quj6^&sl=4^&tt=1m9^&obo=3^&rl=1^\^"; _cs_id=2181030c-3e45-a4a3-f97b-554f6f2b3755.1758113464.0.1758119943.0.1.1791277464477.0.x; nguestv2=eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJraWQiOiI5MTcyODQ0ZjUyOTY0Zjc0YmZhZGVjOTFjOWQ4YjQwMyIsImlhdCI6MTc1ODExOTk0NSwiZXhwIjoxNzU4MTIwMjQ1fQ.HwuLMYuWe-0Jz8tc_uHRXkSODgWghMmoWQPUh_YLtWs; _clsk=qr10ai^%^5E1758119944012^%^5E8^%^5E1^%^5Ev.clarity.ms^%^2Fcollect; intercom-session-yba8j1xj=RGZuNlllc3VKSFRkb0dZRFRWMWgzZjIrSGRNU3J0dXR5bFhGeXoveXo3d29NT0k5ckxMTUQwR3BLUUhrOTlYcG5Hb1o0ZzUxTzhkMjA1T1A5ZGFKdTF6TDNURzZMME1oNW1SVHBUNXZkRjA9LS1IUmQxdUs5RjR4ZmxiWWJpY2Q5dmpnPT0=--1ed01eca03082c800523b02dae5727e1f224a826; bm_sv=397402FCF7F5ED2B5D3E84575BA0EFEF~YAAQL+cVAnCToTWZAQAAkNcdWB3BBcnaoZ9VaEaXCbqENz0mKBGSejpKhB7EFU7dwhXiYQKVlbaA5wjs0nU3NoKNdAHPnxl0Q0xjYLrfDc9p2MNK/2g41YyyPx5sgvHRvKnQ8KhhKOwsa31FPQK029eAoaiMN/Rn5AE812xFDMw3XhL8ko+4ax47pjtJIEC7lMis8PqjgkYwPSXM6iM+tdR/12z18PorLE9m170aaMXpORAnEetY7+I0HFTAAPzhP+kgCA==~1^" ^
+  -H ^"dnt: 1^" ^
+  -H ^"origin: https://admanager.noon.partners^" ^
+  -H ^"priority: u=1, i^" ^
+  -H ^"referer: https://admanager.noon.partners/en-ae/campaign/v2?user=prd-abb44d46d4a54cfc41e4707481^%^40idp.noon.partners^&project=PRJ299533^" ^
+  -H ^"sec-ch-ua: ^\^"Not;A=Brand^\^";v=^\^"99^\^", ^\^"Google Chrome^\^";v=^\^"139^\^", ^\^"Chromium^\^";v=^\^"139^\^"^" ^
+  -H ^"sec-ch-ua-mobile: ?0^" ^
+  -H ^"sec-ch-ua-platform: ^\^"Windows^\^"^" ^
+  -H ^"sec-fetch-dest: empty^" ^
+  -H ^"sec-fetch-mode: cors^" ^
+  -H ^"sec-fetch-site: same-origin^" ^
+  -H ^"sentry-trace: 0cebf8970b4d463f8c4edc1fcb135388-b1c00c8441684ab9-1^" ^
+  -H ^"timeout: 300000^" ^
+  -H ^"user-agent: Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/139.0.0.0 Safari/537.36^" ^
+  -H ^"x-advertiser-codes: ADV_509186C54A39^" ^
+  -H ^"x-border-enabled: true^" ^
+  -H ^"x-cms: v3^" ^
+  -H ^"x-content: desktop^" ^
+  -H ^"x-locale: en-ae^" ^
+  -H ^"x-mp: noon^" ^
+  -H ^"x-platform: web^" ^
+  -H ^"x-project: PRJ299533^" ^
+  -H ^"x-seller-view: true^" ^
+  --data-raw ^"^{^\^"keyword^\^":^\^"book^\^",^\^"sortBySearchVolume^\^":false^}^"

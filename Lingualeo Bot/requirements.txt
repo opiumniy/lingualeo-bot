@@ -1,0 +1,7 @@
+aiogram>=3.0.0
+httpx>=0.24.0
+requests>=2.31.0
+pandas>=2.0.0
+aiofiles>=23.0.0
+selenium>=4.15.0
+webdriver-manager>=4.0.0
