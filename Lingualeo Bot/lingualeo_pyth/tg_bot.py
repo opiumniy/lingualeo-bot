@@ -936,6 +936,9 @@ async def handle_training_answer(callback: CallbackQuery, state: FSMContext):
         training_results = data.get('training_results', {})
         training_results[str(current_word_id)] = 1 if is_correct else 2
         await state.update_data(training_results=training_results)
+        
+        # Сохраняем результаты в файл после каждого ответа (автосохранение)
+        save_training_results(user_id, training_results)
 
         # Отправляем обратную связь пользователю
         if is_correct:
