@@ -26,10 +26,11 @@ class LingualeoAPIClient:
     """
 
     def __init__(self, cookies: Optional[str] = None, user_id: Optional[int] = None):
-        self.cookies = cookies or SAMPLE_COOKIES
+        self.cookies = cookies or ""
         self.user_id = user_id
         self.headers = DEFAULT_HEADERS.copy()
-        self.headers['Cookie'] = self.cookies
+        if self.cookies:
+            self.headers['Cookie'] = self.cookies
         self.session = requests.Session()
         self.session.headers.update(self.headers)
         self.async_client = None

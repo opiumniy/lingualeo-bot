@@ -842,6 +842,10 @@ async def add_word(message: Message, state: FSMContext):
         if len(user_input) == 2:
             word, translation = [u.strip() for u in user_input]
             client = LingualeoAPIClient(user_id=message.from_user.id)
+            if not await client.load_user_cookies_async(message.from_user.id):
+                await message.answer("❌ Сначала войдите в систему с помощью команды /login")
+                await state.clear()
+                return
             response_text = await client.add_word_async(word, translation, message.from_user.id)
             await message.answer(response_text)
             await state.clear()
@@ -1751,6 +1755,11 @@ async def check_words_to_repeat(message: Message):
     logger.info(f"checkwordstorepeat вызвана пользователем {user_id}")
 
     try:
+        client = LingualeoAPIClient(user_id=user_id)
+        if not await client.load_user_cookies_async(user_id):
+            await message.answer("❌ Сначала войдите в систему с помощью команды /login")
+            return
+
         logger.info("Отправляю сообщение пользователю о начале проверки")
         await message.answer("🔍 Проверяю количество слов для повторения...")
         logger.info("Сообщение пользователю отправлено")
