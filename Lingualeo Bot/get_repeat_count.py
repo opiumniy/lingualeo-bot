@@ -16,16 +16,29 @@ from api_client import LingualeoAPIClient
 
 
 def get_repeat_count_api(user_id: int = None):
-    """Extract the number of words left for repetition using API"""
+    """Extract the number of words left for repetition using API
+    
+    Uses global cookies_current.txt for single-user deployment.
+    """
     try:
         client = LingualeoAPIClient(user_id=user_id)
         
-        if user_id:
-            if not client.load_cookies(user_id):
-                print(f"ERROR: No cookies found for user {user_id}")
+        # Use global cookies file (cookies_current.txt) for this command
+        script_dir = os.path.dirname(os.path.abspath(__file__))
+        global_cookies_path = os.path.join(script_dir, "cookies_current.txt")
+        
+        if os.path.exists(global_cookies_path):
+            with open(global_cookies_path, 'r', encoding='utf-8') as f:
+                cookies = f.read().strip()
+            if cookies:
+                client.cookies = cookies
+                client.headers['Cookie'] = cookies
+                print(f"Loaded cookies from {global_cookies_path}")
+            else:
+                print(f"ERROR: cookies_current.txt is empty")
                 return None
         else:
-            print("ERROR: user_id is required")
+            print(f"ERROR: cookies_current.txt not found at {global_cookies_path}")
             return None
 
         response = client.get_learning_main()

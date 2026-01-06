@@ -1,0 +1,472 @@
+{
+  "apiVersion": "1.0.0",
+  "curTime": "2026-01-06T17:09:48",
+  "data": [
+    {
+      "audio": [
+        {
+          "counter": null,
+          "description": "Развивает восприятие речи на слух.",
+          "id": 801,
+          "isPremium": false,
+          "minWords": 0,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "grammar",
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "audiostory",
+          "title": "Аудиоистория",
+          "trainingId": 801,
+          "url": "/ru/trainings/listening/recreate-audio-story?utm_action=13",
+          "viewType": "normal"
+        },
+        {
+          "counter": null,
+          "description": "Развивает восприятие речи на слух.",
+          "id": 802,
+          "isPremium": false,
+          "minWords": 0,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "grammar",
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "sentence",
+          "title": "Собери предложения",
+          "trainingId": 802,
+          "url": "/ru/trainings/listening/recreate-audio-sentence?utm_action=13",
+          "viewType": "normal"
+        }
+      ],
+      "grammar": [
+        {
+          "counter": {
+            "grammar": 20
+          },
+          "id": 1,
+          "name": "Beginner",
+          "skills": [
+            "grammar",
+            "listening",
+            "reading",
+            "speaking",
+            "vocabulary"
+          ],
+          "url": "/ru/grammar/rules#beginner"
+        },
+        {
+          "counter": {
+            "grammar": 28
+          },
+          "id": 2,
+          "name": "Middle",
+          "skills": [
+            "grammar",
+            "listening",
+            "reading",
+            "speaking",
+            "vocabulary"
+          ],
+          "url": "/ru/grammar/rules#middle"
+        },
+        {
+          "counter": {
+            "grammar": 18
+          },
+          "id": 3,
+          "name": "Advanced",
+          "skills": [
+            "grammar",
+            "listening",
+            "reading",
+            "speaking",
+            "vocabulary"
+          ],
+          "url": "/ru/grammar/rules#advanced"
+        }
+      ],
+      "reading": [
+        {
+          "counter": null,
+          "description": "Развивает скорость чтения и восприятия прочитанного.",
+          "id": 702,
+          "isPremium": false,
+          "minWords": 0,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "grammar",
+            "reading",
+            "vocabulary"
+          ],
+          "tag": "set_word",
+          "title": "Расставь слова",
+          "trainingId": 702,
+          "url": "/ru/trainings/reading/fill-the-gaps?utm_action=12",
+          "viewType": "wide"
+        },
+        {
+          "counter": null,
+          "description": "Развивает скорость чтения и восприятия прочитанного.",
+          "id": 701,
+          "isPremium": false,
+          "minWords": 0,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "grammar",
+            "reading",
+            "vocabulary"
+          ],
+          "tag": "build_story",
+          "title": "Восстанови историю",
+          "trainingId": 701,
+          "url": "/ru/trainings/reading/recreate-story?utm_action=12",
+          "viewType": "normal"
+        },
+        {
+          "counter": null,
+          "description": "Развивает скорость чтения и восприятия прочитанного.",
+          "id": 703,
+          "isPremium": false,
+          "minWords": 0,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "grammar",
+            "reading",
+            "vocabulary"
+          ],
+          "tag": "set_spaces",
+          "title": "Расставь пробелы",
+          "trainingId": 703,
+          "url": "/ru/trainings/reading/insert-spaces?utm_action=12",
+          "viewType": "normal"
+        }
+      ],
+      "word": [
+        {
+          "counter": {
+            "words": 216
+          },
+          "description": "Комплексно улучшает все аспекты знания слов: перевод слов, их восприятие на слух и написание.",
+          "id": 6,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "writing",
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "brainstorm",
+          "timer": null,
+          "title": "Брейншторм",
+          "trainingId": 510,
+          "url": "/ru/training/wordMix?utm_action=10",
+          "viewType": "wide"
+        },
+        {
+          "counter": {
+            "words": 6192
+          },
+          "description": "Учит быстро переводить на ваш родной язык. Для этой тренировки используются слова из вашего словаря.",
+          "id": 7,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "vocabulary"
+          ],
+          "tag": "leo_sprint",
+          "timer": null,
+          "title": "Лео-спринт",
+          "trainingId": 508,
+          "url": "/ru/training/leoSprint?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 217
+          },
+          "description": "Формирует навыки обратного перевода и написания слов.",
+          "id": 10,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "writing",
+            "vocabulary"
+          ],
+          "tag": "word_puzzle",
+          "timer": null,
+          "title": "Конструктор слов",
+          "trainingId": 503,
+          "url": "/ru/training/wordPuzzle?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 216
+          },
+          "description": "Помогает лучше переводить на ваш родной язык, улучшает понимание текстов и речи.",
+          "id": 8,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "word_translate",
+          "timer": null,
+          "title": "Слово-перевод",
+          "trainingId": 501,
+          "url": "/ru/training/wordTranslate?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 1161
+          },
+          "description": "Помогает выучить значение слов и учит лучше выражать свои мысли.",
+          "id": 9,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "translate_word",
+          "timer": null,
+          "title": "Перевод-слово",
+          "trainingId": 502,
+          "url": "/ru/training/translateWord?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 3869
+          },
+          "description": "Улучшает восприятие речи на слух.",
+          "id": 13,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "audition_plus",
+          "timer": null,
+          "title": "Аудиовызов",
+          "trainingId": 515,
+          "url": "/ru/training/auditionPlus?utm_action=10",
+          "viewType": "wide"
+        },
+        {
+          "counter": {
+            "words": 217
+          },
+          "description": "Словарные карточки помогают быстро проверить знание слов из личного словаря.",
+          "id": 12,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "word_cards",
+          "timer": null,
+          "title": "Словарные карточки",
+          "trainingId": 504,
+          "url": "/ru/training/wordsCards?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 837
+          },
+          "description": "Помогает не забывать уже выученные слова, тренировка проходит по алгоритму \"кривой забывания\".",
+          "id": 14,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "vocabulary"
+          ],
+          "tag": "repetition",
+          "timer": null,
+          "title": "Повторение",
+          "trainingId": 512,
+          "url": "/ru/training/repetition?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "phrases": 0
+          },
+          "description": "Помогает комплексно тренировать навык письма.",
+          "id": 15,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "grammar",
+            "reading",
+            "writing",
+            "vocabulary"
+          ],
+          "tag": "phrase_puzzle",
+          "timer": null,
+          "title": "Конструктор фраз",
+          "trainingId": 509,
+          "url": "/ru/training/phrasePuzzle?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 217
+          },
+          "description": "Улучшает восприятие речи на слух, а также навыки написания слов.",
+          "id": 11,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "writing",
+            "listening",
+            "vocabulary"
+          ],
+          "tag": "audio_word",
+          "timer": null,
+          "title": "Аудирование",
+          "trainingId": 505,
+          "url": "/ru/training/audioWord?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 2087
+          },
+          "description": "Улучшает навыки перевода слов.",
+          "id": 17,
+          "isPremium": false,
+          "minWords": 12,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "writing",
+            "vocabulary"
+          ],
+          "tag": "crossword",
+          "timer": null,
+          "title": "Кроссворд",
+          "trainingId": 506,
+          "url": "/ru/training/crossword?utm_action=10",
+          "viewType": "normal"
+        },
+        {
+          "counter": {
+            "words": 1117
+          },
+          "description": "Оттачивает понимание речи и быстрого перевода слов, помогает не забыть выученные слова.",
+          "id": 16,
+          "isPremium": false,
+          "minWords": 5,
+          "minXpLevel": null,
+          "onTablet": true,
+          "skills": [
+            "vocabulary"
+          ],
+          "tag": "savannah",
+          "timer": null,
+          "title": "Саванна",
+          "trainingId": 516,
+          "url": "/ru/training/savannah?utm_action=10",
+          "viewType": "normal"
+        }
+      ],
+      "wordSets": [
+        {
+          "countWords": 0,
+          "id": 3,
+          "name": "Слова из интернета",
+          "pic": null
+        },
+        {
+          "countWords": 0,
+          "id": 2,
+          "name": "Слова из материалов",
+          "pic": null
+        },
+        {
+          "countWords": 8,
+          "id": 7,
+          "name": "IT термины",
+          "pic": "https://contentcdn.lingualeo.com/uploads/content/image/1618222891-2860.jpg"
+        },
+        {
+          "countWords": 14,
+          "id": 37,
+          "name": "business",
+          "pic": "https://contentcdn.lingualeo.com/uploads/upimages/fe502def90e57f4ff169833d02c9f8633392703e.png"
+        },
+        {
+          "countWords": 24,
+          "id": 6,
+          "name": "Для стартапера",
+          "pic": "https://contentcdn.lingualeo.com/uploads/content/image/1617893795-2859.jpg"
+        },
+        {
+          "countWords": 27,
+          "id": 18,
+          "name": "Идиомы",
+          "pic": "https://contentcdn.lingualeo.com/uploads/upimages/fe502def90e57f4ff169833d02c9f8633392703e.png"
+        },
+        {
+          "countWords": 1451,
+          "id": 4,
+          "name": "Слова из теста",
+          "pic": "https://contentcdn.lingualeo.com/uploads/upimages/fe502def90e57f4ff169833d02c9f8633392703e.png"
+        },
+        {
+          "countWords": 8,
+          "id": 40,
+          "name": "Университет (B2 - C1)",
+          "pic": "https://contentcdn.lingualeo.com/uploads/content/image/1634041555-2873.jpg"
+        },
+        {
+          "countWords": 53,
+          "id": 5,
+          "name": "Финансы",
+          "pic": "https://contentcdn.lingualeo.com/uploads/content/image/1635862785-2858.png"
+        },
+        {
+          "countWords": 20,
+          "id": 10,
+          "name": "Фразовые глаголы для начинающих",
+          "pic": "https://contentcdn.lingualeo.com/uploads/upimages/fe502def90e57f4ff169833d02c9f8633392703e.png"
+        }
+      ]
+    }
+  ],
+  "status": "ok"
+}

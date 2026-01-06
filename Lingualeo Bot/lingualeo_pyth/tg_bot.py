@@ -1774,14 +1774,27 @@ def calculate_next_repetition(repeat_at, repeat_interval):
 
 @dp.message(Command("checkwordstorepeat"))
 async def check_words_to_repeat(message: Message):
-    """Проверяет количество слов для повторения на Lingualeo"""
+    """Проверяет количество слов для повторения на Lingualeo
+    
+    Использует cookies_current.txt для single-user deployment.
+    """
     user_id = message.from_user.id
     logger.info(f"checkwordstorepeat вызвана пользователем {user_id}")
 
     try:
-        client = LingualeoAPIClient(user_id=user_id)
-        if not await client.load_user_cookies_async(user_id):
-            await message.answer("❌ Сначала войдите в систему с помощью команды /login")
+        # Check if cookies_current.txt exists
+        script_dir = Path(__file__).parent.parent
+        cookies_path = script_dir / "cookies_current.txt"
+        
+        if not cookies_path.exists():
+            await message.answer("❌ Файл cookies_current.txt не найден. Положите cookies в этот файл.")
+            return
+        
+        with open(cookies_path, 'r', encoding='utf-8') as f:
+            cookies_content = f.read().strip()
+        
+        if not cookies_content:
+            await message.answer("❌ Файл cookies_current.txt пустой. Добавьте cookies.")
             return
 
         logger.info("Отправляю сообщение пользователю о начале проверки")
