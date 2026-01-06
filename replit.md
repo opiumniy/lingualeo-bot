@@ -161,6 +161,14 @@ Key implementation files:
 
 ## Recent Changes
 
+**2026-01-06**
+- Added PostgreSQL database support for data persistence across redeployments
+- Created new `db.py` module with async database functions (asyncpg)
+- Dual storage mode: PostgreSQL in production (when DATABASE_URL set), CSV files in development
+- Migrated commands to database: /update_vocab, /rep_ruseng, /dictionary, /wordstatus
+- Fixed deployment type to VM (required for Telegram bots, not Autoscale)
+- Database schema: user_vocabulary (user_id + english unique key), user_cookies, training_results
+
 **2026-01-05**
 - Added `/dictionary` command with pagination and sorting
 - Added `/wordstatus` command for individual word lookup
