@@ -28,3 +28,7 @@ args = "cd \"Lingualeo Bot/lingualeo_pyth\" && python3 tg_bot.py"
 
 [workflows.workflow.metadata]
 outputType = "console"
+
+[deployment]
+deploymentTarget = "vm"
+run = ["python3", "Lingualeo Bot/lingualeo_pyth/tg_bot.py"]
