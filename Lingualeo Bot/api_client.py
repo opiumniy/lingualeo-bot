@@ -11,6 +11,13 @@ from config import (
     get_user_cookies_path, get_global_cookies_path, SAMPLE_COOKIES
 )
 
+USE_DATABASE = os.environ.get("DATABASE_URL") is not None
+
+if USE_DATABASE:
+    import sys
+    sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'lingualeo_pyth'))
+    from db import save_user_cookies as db_save_cookies, get_user_cookies as db_get_cookies
+
 
 class LingualeoAPIClient:
     """
@@ -55,11 +62,26 @@ class LingualeoAPIClient:
 
     async def load_user_cookies_async(self, user_id: int) -> bool:
         """
-        Асинхронно загружает cookies пользователя с fallback на глобальный файл.
+        Асинхронно загружает cookies пользователя.
+        Приоритет: база данных -> файл пользователя -> глобальный файл
         """
         logger = logging.getLogger(__name__)
 
-        # Сначала пробуем пользовательский файл
+        # Сначала пробуем базу данных (если доступна)
+        if USE_DATABASE:
+            try:
+                cookies_from_db = await db_get_cookies(user_id)
+                if cookies_from_db:
+                    self.cookies = cookies_from_db
+                    self.headers['Cookie'] = self.cookies
+                    logger.info(f"Cookies загружены из БД для user_id {user_id}")
+                    return True
+                else:
+                    logger.debug(f"Cookies не найдены в БД для user_id {user_id}")
+            except Exception as e:
+                logger.error(f"Ошибка загрузки cookies из БД: {e}")
+
+        # Fallback на пользовательский файл
         user_path = get_user_cookies_path(user_id)
         logger.debug(f"Проверяем пользовательский файл cookies: {user_path}")
 
@@ -128,7 +150,9 @@ class LingualeoAPIClient:
     async def login_async(self, email: str, password: str, user_id: int) -> Dict:
         """
         Асинхронный логин для TG бота.
+        Сохраняет cookies в базу данных (если доступна) и в файл.
         """
+        logger = logging.getLogger(__name__)
         url = API_URLS['auth']
         payload = PAYLOAD_TEMPLATES['login'].copy()
         payload['credentials']['email'] = email
@@ -139,11 +163,21 @@ class LingualeoAPIClient:
         cookies_str = '; '.join([f"{k}={v}" for k, v in response.cookies.items()])
         self.cookies = cookies_str
         self.headers['Cookie'] = cookies_str
-        # Сохраняем асинхронно
+        
+        # Сохраняем в базу данных (приоритет)
+        if USE_DATABASE:
+            try:
+                await db_save_cookies(user_id, cookies_str)
+                logger.info(f"Cookies сохранены в БД для user_id {user_id}")
+            except Exception as e:
+                logger.error(f"Ошибка сохранения cookies в БД: {e}")
+        
+        # Также сохраняем в файл (backup)
         path = get_user_cookies_path(user_id)
         os.makedirs(os.path.dirname(path), exist_ok=True)
         async with aiofiles.open(path, 'w', encoding='utf-8') as f:
             await f.write(cookies_str)
+        
         return response.json()
 
     def add_word(self, word: str, translation: str) -> Dict:

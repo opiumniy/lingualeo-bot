@@ -168,6 +168,7 @@ Key implementation files:
 - Migrated commands to database: /update_vocab, /rep_ruseng, /dictionary, /wordstatus
 - Fixed deployment type to VM (required for Telegram bots, not Autoscale)
 - Database schema: user_vocabulary (user_id + english unique key), user_cookies, training_results
+- Updated API client to store/load cookies from database (multi-user support)
 
 **2026-01-05**
 - Added `/dictionary` command with pagination and sorting
