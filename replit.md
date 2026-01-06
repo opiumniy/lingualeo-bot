@@ -162,13 +162,16 @@ Key implementation files:
 ## Recent Changes
 
 **2026-01-06**
-- Added PostgreSQL database support for data persistence across redeployments
-- Created new `db.py` module with async database functions (asyncpg)
-- Dual storage mode: PostgreSQL in production (when DATABASE_URL set), CSV files in development
-- Migrated commands to database: /update_vocab, /rep_ruseng, /dictionary, /wordstatus
-- Fixed deployment type to VM (required for Telegram bots, not Autoscale)
-- Database schema: user_vocabulary (user_id + english unique key), user_cookies, training_results
-- Updated API client to store/load cookies from database (multi-user support)
+- Added SQLite database support for local Windows deployment (no external database dependencies)
+- Created `db_sqlite.py` module with identical async interface to PostgreSQL module
+- Auto-detect database backend: SQLite when DATABASE_URL empty/unset, PostgreSQL when set
+- Added `migrate_to_sqlite.py` script to transfer data from PostgreSQL to SQLite
+- SQLite database stored at `lingualeo_pyth/lingualeo.db`
+- Windows batch files for local deployment: `start_all.bat`, `run_bot.bat`, `run_updater.bat`
+- Previous PostgreSQL changes:
+  - Created `db.py` module with async database functions (asyncpg)
+  - Migrated commands to database: /update_vocab, /rep_ruseng, /dictionary, /wordstatus
+  - Database schema: user_vocabulary, user_cookies, training_results
 
 **2026-01-05**
 - Added `/dictionary` command with pagination and sorting
