@@ -1794,8 +1794,8 @@ async def check_words_to_repeat(message: Message):
                 logger.info(f"{elapsed} сек - скрипт выполняется...")
             logger.info(f"Скрипт завершился через {elapsed} сек")
 
-        # Запускаем процесс
-        process = subprocess.Popen([sys.executable, str(script_path)],
+        # Запускаем процесс с user_id
+        process = subprocess.Popen([sys.executable, str(script_path), str(user_id)],
                                  stdout=subprocess.PIPE, stderr=subprocess.PIPE,
                                  text=True, cwd=str(script_dir))
 
@@ -1830,8 +1830,8 @@ async def check_words_to_repeat(message: Message):
 
         if result.returncode == 0:
             logger.info("Скрипт выполнен успешно, читаю результат из файла")
-            # Читаем результат из файла
-            output_file = script_dir / "repeat_count.txt"
+            # Читаем результат из файла (per-user)
+            output_file = script_dir / f"repeat_count_{user_id}.txt"
             logger.info(f"Проверяю файл с результатом: {output_file}")
 
             if output_file.exists():

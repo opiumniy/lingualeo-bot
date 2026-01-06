@@ -53,12 +53,7 @@ PAYLOAD_TEMPLATES = {
         'userData': {
             'nativeLanguage': 'lang_id_src'
         },
-        'iDs': [
-            {
-                'y': '1684752513711783236',  # Заменить на актуальное из cookies
-                'g': '1018540351.1695370975'
-            }
-        ]
+        'iDs': []  # Заполняется динамически из cookies пользователя
     },
     'login': {
         'type': 'mixed',
@@ -92,8 +87,8 @@ def get_user_cookies_path(user_id):
 def get_global_cookies_path():
     return GLOBAL_COOKIES_FILE
 
-# Пример cookies строки (заменить на актуальную)
-SAMPLE_COOKIES = '_ym_uid=1731927216910223507; _ym_d=1758474485; tmr_lvid=31559846206384e457309e14d672a9aa; tmr_lvidTS=1731927212432; remember=eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJzdWIiOjExMzg5NzE1LCJleHAiOjE3NjY1MDk3MDIsInR5cCI6ImEifQ.LcaJVzj-jjDw_A2NQtb0CskdghqlPlOekLYFywq1g1Y; userid=11389715; _ym_isad=1'
+# SAMPLE_COOKIES removed - each user must login with /login command
+SAMPLE_COOKIES = ''
 
-# ID пользователя (из cookies)
-SAMPLE_USER_ID = '11389715'
+# Sample user ID removed - multi-user bot
+SAMPLE_USER_ID = ''
