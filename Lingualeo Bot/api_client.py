@@ -100,26 +100,8 @@ class LingualeoAPIClient:
             except Exception as e:
                 logger.error(f"Ошибка чтения пользовательского файла cookies {user_path}: {e}")
 
-        # Если пользовательский файл не найден или пустой, пробуем глобальный файл
-        global_path = get_global_cookies_path()
-        logger.debug(f"Проверяем глобальный файл cookies: {global_path}")
-
-        if os.path.exists(global_path):
-            try:
-                async with aiofiles.open(global_path, 'r', encoding='utf-8') as f:
-                    content = await f.read()
-                    self.cookies = content.strip()
-
-                if self.cookies:
-                    self.headers['Cookie'] = self.cookies
-                    logger.info(f"Глобальные cookies загружены для user_id {user_id}")
-                    return True
-                else:
-                    logger.warning(f"Пустой глобальный файл cookies: {global_path}")
-            except Exception as e:
-                logger.error(f"Ошибка чтения глобального файла cookies {global_path}: {e}")
-
-        logger.error(f"Не удалось загрузить cookies для user_id {user_id}")
+        # НЕ используем глобальный файл для TG бота - каждый пользователь должен авторизоваться сам
+        logger.info(f"Cookies не найдены для user_id {user_id} - требуется авторизация через /login")
         return False
 
     def login(self, email: str, password: str) -> Dict:
