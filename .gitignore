@@ -8,3 +8,19 @@ wheels/
 
 # Virtual environments
 .venv
+
+# Cookies files (user-specific, should not be in git)
+**/cookies_current.txt
+**/User_Cookies/
+**/*_cookies.txt
+
+# Local database
+*.db
+lingualeo.db
+
+# Debug/output files
+**/api_response_debug_*.json
+**/repeat_count_*.txt
+**/training_results_*.json
+**/ruseng_results_*.json
+**/vocabulary_*.csv
