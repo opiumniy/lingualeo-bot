@@ -824,7 +824,21 @@ async def do_login(message: Message, state: FSMContext):
                 except Exception as copy_error:
                     logger.warning(f"Не удалось скопировать cookies в глобальный файл: {copy_error}")
 
-                await message.answer("✅ Логин успешен! Можете начинать тренировку командой /rep_engrus")
+                # Check vocabulary count
+                word_count = response.get('_word_count', 0)
+                if word_count == 0:
+                    await message.answer(
+                        "⚠️ Логин успешен, но в словаре 0 слов!\n\n"
+                        "Возможно:\n"
+                        "• Неверный email или пароль (Lingualeo создал пустой аккаунт)\n"
+                        "• Это новый аккаунт без слов\n\n"
+                        "Проверьте данные и попробуйте /login снова с правильными credentials."
+                    )
+                else:
+                    await message.answer(
+                        f"✅ Логин успешен! В словаре {word_count} слов.\n"
+                        "Можете начинать тренировку командой /rep_engrus"
+                    )
 
         except Exception as login_error:
             logger.error(f"Ошибка при выполнении логина для пользователя {user_id}: {login_error}")
