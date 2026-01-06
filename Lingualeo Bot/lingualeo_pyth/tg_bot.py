@@ -7,7 +7,9 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import atexit
 
-USE_DATABASE = os.environ.get("DATABASE_URL") is not None
+DATABASE_URL = os.environ.get("DATABASE_URL")
+USE_POSTGRESQL = DATABASE_URL is not None
+USE_DATABASE = True
 
 # Добавляем корневую директорию проекта в путь для импортов
 project_root = Path(__file__).parent.parent.parent
@@ -53,15 +55,24 @@ except ImportError:
         from api_client import LingualeoAPIClient, fix_process_training_answer_batch
         from config import get_user_cookies_path, get_global_cookies_path
 
-if USE_DATABASE:
+if USE_POSTGRESQL:
     try:
         import db as database
         logger_init = logging.getLogger(__name__)
-        logger_init.info("Database module loaded successfully")
+        logger_init.info("PostgreSQL database module loaded successfully")
     except ImportError as e:
         USE_DATABASE = False
         logger_init = logging.getLogger(__name__)
-        logger_init.warning(f"Database module not available, using file storage: {e}")
+        logger_init.warning(f"PostgreSQL database module not available: {e}")
+else:
+    try:
+        import db_sqlite as database
+        logger_init = logging.getLogger(__name__)
+        logger_init.info("SQLite database module loaded successfully")
+    except ImportError as e:
+        USE_DATABASE = False
+        logger_init = logging.getLogger(__name__)
+        logger_init.warning(f"SQLite database module not available: {e}")
 
 # Настройка логирования в файл
 current_dir = Path(__file__).parent

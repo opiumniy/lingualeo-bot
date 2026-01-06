@@ -6,6 +6,7 @@ requires-python = ">=3.11"
 dependencies = [
     "aiofiles>=25.1.0",
     "aiogram>=3.24.0",
+    "aiosqlite>=0.22.1",
     "asyncpg>=0.31.0",
     "httpx>=0.28.1",
     "pandas>=2.3.3",
