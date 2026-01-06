@@ -5,7 +5,7 @@ import sys
 os.environ["DATABASE_URL"] = os.environ.get("DATABASE_URL", "")
 
 async def migrate():
-    if not os.environ.get("DATABASE_URL"):
+    if not os.environ.get("DATABASE_URL", "").strip():
         print("DATABASE_URL not set. Nothing to migrate.")
         return
     
@@ -40,6 +40,15 @@ async def migrate():
             if cookies:
                 await sqlite_db.save_user_cookies(user_id, cookies)
                 print(f"  Migrated cookies")
+        
+        print("\nMigrating training results...")
+        training_users = await conn.fetch("SELECT DISTINCT user_id FROM training_results")
+        for user_row in training_users:
+            user_id = user_row['user_id']
+            results = await pg_db.get_training_results(user_id)
+            if results:
+                await sqlite_db.save_training_results(user_id, results)
+                print(f"  Migrated training results for user {user_id}")
     
     await pg_db.close_pool()
     print("\nMigration complete!")

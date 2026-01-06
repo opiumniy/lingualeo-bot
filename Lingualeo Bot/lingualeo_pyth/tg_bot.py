@@ -7,8 +7,8 @@ from datetime import datetime, timedelta
 from pathlib import Path
 import atexit
 
-DATABASE_URL = os.environ.get("DATABASE_URL")
-USE_POSTGRESQL = DATABASE_URL is not None
+DATABASE_URL = os.environ.get("DATABASE_URL", "").strip()
+USE_POSTGRESQL = bool(DATABASE_URL)
 USE_DATABASE = True
 
 # Добавляем корневую директорию проекта в путь для импортов
