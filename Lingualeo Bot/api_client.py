@@ -153,12 +153,19 @@ class LingualeoAPIClient:
         
         response_data = response.json()
         logger.info(f"Login response keys: {list(response_data.keys())}")
+        logger.info(f"Login response data: {response_data}")
         
         # Check for error in response
         error_msg = response_data.get('error_msg', '')
         if error_msg:
             logger.warning(f"Login error from API: {error_msg}")
             return response_data
+        
+        # Check status field
+        status = response_data.get('status')
+        if status and status != 'ok' and status != 'OK':
+            logger.warning(f"Login status not OK: {status}")
+            return {'error_msg': f'Статус: {status}'}
         
         # Check HTTP status
         if response.status_code != 200:
