@@ -16,15 +16,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Bot Status"
+args = "Lingualeo Telegram Bot"
 
 [[workflows.workflow]]
-name = "Bot Status"
+name = "Lingualeo Telegram Bot"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo \"Бот работает на ноутбуке пользователя. Git push выполнен.\""
+args = "cd \"Lingualeo Bot/lingualeo_pyth\" && python tg_bot.py"
 
 [workflows.workflow.metadata]
 outputType = "console"
