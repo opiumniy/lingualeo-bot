@@ -2143,13 +2143,27 @@ async def handle_dictionary_navigation(callback: CallbackQuery, state: FSMContex
 
 
 def check_and_create_pid_file():
-    pid_file = 'bot.pid'
+    import tempfile
+    pid_file = os.path.join(tempfile.gettempdir(), 'lingualeo_bot.pid')
     if os.path.exists(pid_file):
-        print("Бот уже запущен")
-        sys.exit(1)
+        try:
+            with open(pid_file, 'r') as f:
+                old_pid = int(f.read().strip())
+            if sys.platform == 'win32':
+                import subprocess
+                result = subprocess.run(['tasklist', '/FI', f'PID eq {old_pid}'], capture_output=True, text=True)
+                if str(old_pid) in result.stdout:
+                    print("Бот уже запущен")
+                    sys.exit(1)
+            else:
+                os.kill(old_pid, 0)
+                print("Бот уже запущен")
+                sys.exit(1)
+        except (ProcessLookupError, ValueError, OSError):
+            pass
     with open(pid_file, 'w') as f:
         f.write(str(os.getpid()))
-    atexit.register(lambda: os.remove(pid_file))
+    atexit.register(lambda: os.path.exists(pid_file) and os.remove(pid_file))
 
 async def main():
     check_and_create_pid_file()
