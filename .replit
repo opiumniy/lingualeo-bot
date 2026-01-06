@@ -7,27 +7,6 @@ packages = ["glibcLocales", "postgresql", "unzip"]
 expertMode = true
 
 [workflows]
-runButton = "Project"
-
-[[workflows.workflow]]
-name = "Project"
-mode = "parallel"
-author = "agent"
-
-[[workflows.workflow.tasks]]
-task = "workflow.run"
-args = "Lingualeo Telegram Bot"
-
-[[workflows.workflow]]
-name = "Lingualeo Telegram Bot"
-author = "agent"
-
-[workflows.workflow.metadata]
-outputType = "console"
-
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Bot runs on user's laptop. Workflow paused.\""
 
 [deployment]
 deploymentTarget = "vm"
