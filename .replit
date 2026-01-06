@@ -24,7 +24,7 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "cd \"Lingualeo Bot/lingualeo_pyth\" && python tg_bot.py"
+args = "echo \"Bot is running on user's laptop. This workflow is paused to avoid conflicts.\""
 
 [workflows.workflow.metadata]
 outputType = "console"
