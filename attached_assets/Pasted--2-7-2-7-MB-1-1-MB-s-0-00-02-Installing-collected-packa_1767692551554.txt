@@ -1,0 +1,62 @@
+------------------------------------- 2.7/2.7 MB 1.1 MB/s  0:00:02
+Installing collected packages: psycopg2-binary, asyncpg
+Successfully installed asyncpg-0.31.0 psycopg2-binary-2.9.11
+
+[notice] A new release of pip is available: 25.2 -> 25.3
+[notice] To update, run: C:\Users\localComp\AppData\Local\Microsoft\WindowsApps\PythonSoftwareFoundation.Python.3.13_qbz5n2kfra8p0\python.exe -m pip install --upgrade pip
+
+C:\Users\localComp\Projects\lingualeo-bot>notepad .env
+
+C:\Users\localComp\Projects\lingualeo-bot>notepad deploy_agent.pynotepad deploy_agent.py^Z
+
+C:\Users\localComp\Projects\lingualeo-bot>notepad deploy_agent.py
+
+C:\Users\localComp\Projects\lingualeo-bot>cd "Lingualeo Bot\lingualeo_pyth"
+Системе не удается найти указанный путь.
+
+C:\Users\localComp\Projects\lingualeo-bot>pm2 start tg_bot.py --name "lingualeo-bot" --interpreter python
+
+                        -------------
+
+__/\\\\\\\\\\\\\____/\\\\____________/\\\\____/\\\\\\\\\_____
+ _\/\\\/////////\\\_\/\\\\\\________/\\\\\\__/\\\///////\\\___
+  _\/\\\_______\/\\\_\/\\\//\\\____/\\\//\\\_\///______\//\\\__
+   _\/\\\\\\\\\\\\\/__\/\\\\///\\\/\\\/_\/\\\___________/\\\/___
+    _\/\\\/////////____\/\\\__\///\\\/___\/\\\________/\\\//_____
+     _\/\\\_____________\/\\\____\///_____\/\\\_____/\\\//________
+      _\/\\\_____________\/\\\_____________\/\\\___/\\\/___________
+       _\/\\\_____________\/\\\_____________\/\\\__/\\\\\\\\\\\\\\\_
+        _\///______________\///______________\///__\///////////////__
+
+
+                          Runtime Edition
+
+        PM2 is a Production Process Manager for Node.js applications
+                     with a built-in Load Balancer.
+
+                Start and Daemonize any application:
+                $ pm2 start app.js
+
+                Load Balance 4 instances of api.js:
+                $ pm2 start api.js -i 4
+
+                Monitor in production:
+                $ pm2 monitor
+
+                Make pm2 auto-boot at server restart:
+                $ pm2 startup
+
+                To go further checkout:
+                http://pm2.io/
+
+
+                        -------------
+
+[PM2] Spawning PM2 daemon with pm2_home=C:\Users\localComp\.pm2
+[PM2] PM2 Successfully daemonized
+[PM2][ERROR] Script not found: C:\Users\localComp\Projects\lingualeo-bot\tg_bot.py
+
+C:\Users\localComp\Projects\lingualeo-bot>
+
+
+
