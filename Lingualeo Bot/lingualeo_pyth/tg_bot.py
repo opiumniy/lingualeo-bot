@@ -445,7 +445,7 @@ async def start_ruseng_training(message: Message, state: FSMContext):
             total_answers=restored_total,
             wrong_answers=[],
             user_id=message.from_user.id,
-            vocab_df=df,
+            vocab_df=df if not USE_DATABASE else None,
             training_type='rus_eng',
             ruseng_results=filtered_results
         )
