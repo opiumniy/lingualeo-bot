@@ -22,12 +22,12 @@ args = "Lingualeo Telegram Bot"
 name = "Lingualeo Telegram Bot"
 author = "agent"
 
-[[workflows.workflow.tasks]]
-task = "shell.exec"
-args = "echo \"Bot is running on user's laptop. This workflow is paused to avoid conflicts.\""
-
 [workflows.workflow.metadata]
 outputType = "console"
+
+[[workflows.workflow.tasks]]
+task = "shell.exec"
+args = "echo \"Bot runs on user's laptop. Workflow paused.\""
 
 [deployment]
 deploymentTarget = "vm"
