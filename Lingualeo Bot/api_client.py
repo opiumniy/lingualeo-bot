@@ -196,6 +196,18 @@ class LingualeoAPIClient:
         async with aiofiles.open(path, 'w', encoding='utf-8') as f:
             await f.write(cookies_str)
         
+        # Verify login by making a test API call
+        try:
+            test_url = API_URLS.get('get_words') or 'https://api.lingualeo.com/GetWords'
+            async with httpx.AsyncClient(headers={'Cookie': cookies_str}) as verify_client:
+                verify_response = await verify_client.get(test_url, params={'limit': 1})
+                logger.info(f"Verify API call status: {verify_response.status_code}")
+                if verify_response.status_code == 401:
+                    logger.warning("Login verification failed - unauthorized")
+                    return {'error_msg': 'Неверный email или пароль'}
+        except Exception as verify_error:
+            logger.warning(f"Login verification error (non-critical): {verify_error}")
+        
         logger.info(f"Login successful for user_id {user_id}")
         return response_data
 
