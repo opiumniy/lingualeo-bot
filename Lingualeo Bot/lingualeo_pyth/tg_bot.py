@@ -793,8 +793,20 @@ async def do_login(message: Message, state: FSMContext):
         try:
             response = await client.login_async(email, password, user_id)
 
-            if response and response.get('error_msg') == '':
+            # Check for error first
+            error_msg = response.get('error_msg') if response else None
+            
+            if error_msg:
+                # API returned an error message
+                logger.warning(f"Ошибка логина для пользователя {user_id}: {error_msg}")
+                await message.answer(f"❌ Ошибка входа: {error_msg}")
+            elif response is None:
+                logger.error(f"Пустой ответ от API для пользователя {user_id}")
+                await message.answer("❌ Ошибка сервера: пустой ответ")
+            else:
+                # No error - login successful
                 logger.info(f"Успешный логин для пользователя {user_id}")
+                logger.info(f"Response keys: {list(response.keys())}")
 
                 # Копируем cookies в глобальный файл для совместимости
                 try:
@@ -807,14 +819,12 @@ async def do_login(message: Message, state: FSMContext):
                         with open(global_path, 'w', encoding='utf-8') as dst:
                             dst.write(content)
                         logger.info(f"Cookies скопированы в глобальный файл {global_path}")
+                    else:
+                        logger.warning(f"Файл cookies не найден: {user_path}")
                 except Exception as copy_error:
                     logger.warning(f"Не удалось скопировать cookies в глобальный файл: {copy_error}")
 
                 await message.answer("✅ Логин успешен! Можете начинать тренировку командой /rep_engrus")
-            else:
-                error_msg = response.get('error_msg', 'Неизвестная ошибка') if response else 'Ошибка сервера'
-                logger.warning(f"Ошибка логина для пользователя {user_id}: {error_msg}")
-                await message.answer(f"❌ Ошибка входа: {error_msg}")
 
         except Exception as login_error:
             logger.error(f"Ошибка при выполнении логина для пользователя {user_id}: {login_error}")
