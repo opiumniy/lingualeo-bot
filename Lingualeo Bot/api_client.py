@@ -443,8 +443,10 @@ class LingualeoAPIClient:
         """
         Асинхронно получает слова для тренировки (word_get_repetition).
         """
-        if not await self.load_user_cookies_async(user_id):
-            raise ValueError("Cookies not found. Login first.")
+        # Skip loading if cookies already set (e.g. from cookies_current.txt)
+        if not self.cookies:
+            if not await self.load_user_cookies_async(user_id):
+                raise ValueError("Cookies not found. Login first.")
         url = 'https://api.lingualeo.com/ProcessTraining'
         # Извлекаем ID из cookies
         cookies_dict = {c.split('=', 1)[0].strip(): c.split('=', 1)[1].strip() for c in self.cookies.split(';') if '=' in c}

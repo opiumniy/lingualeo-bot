@@ -16,15 +16,15 @@ author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "workflow.run"
-args = "Bot Status"
+args = "Status"
 
 [[workflows.workflow]]
-name = "Bot Status"
+name = "Status"
 author = "agent"
 
 [[workflows.workflow.tasks]]
 task = "shell.exec"
-args = "echo \"Бот работает на ноутбуке. Используй git pull для обновления.\""
+args = "echo \"Бот работает на ноутбуке. git pull для обновлений.\""
 
 [workflows.workflow.metadata]
 outputType = "console"

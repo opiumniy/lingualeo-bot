@@ -472,18 +472,34 @@ async def start_ruseng_training(message: Message, state: FSMContext):
 
 @dp.message(Command("rep_engrus"))
 async def start_training(message: Message, state: FSMContext):
-    """Запуск тренировки английских слов с русским переводом"""
+    """Запуск тренировки английских слов с русским переводом
+    
+    Использует cookies_current.txt для single-user deployment.
+    """
     logger.info(f"start_training вызвана пользователем {message.from_user.id}")
 
     try:
-        # Проверяем аутентификацию пользователя
-        logger.info(f"Проверка аутентификации для пользователя {message.from_user.id}")
-        client = LingualeoAPIClient(user_id=message.from_user.id)
-
-        if not await client.load_user_cookies_async(message.from_user.id):
-            logger.warning(f"Не удалось загрузить cookies для пользователя {message.from_user.id}")
-            await message.answer("❌ Сначала войдите в систему с помощью команды /login")
+        # Загружаем cookies из cookies_current.txt
+        script_dir = Path(__file__).parent.parent
+        cookies_path = script_dir / "cookies_current.txt"
+        
+        if not cookies_path.exists():
+            await message.answer("❌ Файл cookies_current.txt не найден. Положите cookies в этот файл.")
             return
+        
+        with open(cookies_path, 'r', encoding='utf-8') as f:
+            cookies_content = f.read().strip()
+        
+        if not cookies_content:
+            await message.answer("❌ Файл cookies_current.txt пустой. Добавьте cookies.")
+            return
+        
+        logger.info(f"Cookies загружены из {cookies_path}")
+        
+        # Создаем клиент и устанавливаем cookies
+        client = LingualeoAPIClient(user_id=message.from_user.id)
+        client.cookies = cookies_content
+        client.headers['Cookie'] = cookies_content
 
         logger.info("Аутентификация успешна, заголовки обновлены")
 
