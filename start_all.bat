@@ -1,9 +1,11 @@
 @echo off
-echo Starting Lingualeo Bot and Update Agent...
+echo === Lingualeo Bot with Auto-Update ===
+echo.
+echo This will start the bot with automatic update checking.
+echo The bot will restart automatically when new code is pushed to GitHub.
+echo.
+echo Press Ctrl+C to stop.
+echo.
 
-start "Lingualeo Bot" run_bot.bat
-timeout /t 2 /nobreak > nul
-start "Update Agent" run_updater.bat
-
-echo Both processes started in separate windows.
-pause
+cd /d "%~dp0"
+python deploy_agent.py
