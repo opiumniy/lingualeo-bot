@@ -47,18 +47,20 @@ class LingualeoAPIClient:
 
     def load_cookies(self, user_id: Optional[int] = None) -> bool:
         """
-        Загружает cookies из файла пользователя или глобального.
+        Загружает cookies из файла пользователя.
+        Для TG бота глобальный fallback отключен - каждый пользователь должен авторизоваться.
         """
-        if user_id:
-            path = get_user_cookies_path(user_id)
-        else:
-            path = get_global_cookies_path()
-        if os.path.exists(path):
-            with open(path, 'r', encoding='utf-8') as f:
-                self.cookies = f.read().strip()
-            self.headers['Cookie'] = self.cookies
-            self.session.headers.update({'Cookie': self.cookies})
-            return True
+        effective_user_id = user_id or self.user_id
+        if effective_user_id:
+            path = get_user_cookies_path(effective_user_id)
+            if os.path.exists(path):
+                with open(path, 'r', encoding='utf-8') as f:
+                    self.cookies = f.read().strip()
+                if self.cookies:
+                    self.headers['Cookie'] = self.cookies
+                    self.session.headers.update({'Cookie': self.cookies})
+                    return True
+        self.logger.warning(f"Cookies не найдены для user_id {effective_user_id}")
         return False
 
     async def load_user_cookies_async(self, user_id: int) -> bool:
