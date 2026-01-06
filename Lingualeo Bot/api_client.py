@@ -142,10 +142,36 @@ class LingualeoAPIClient:
         payload = PAYLOAD_TEMPLATES['login'].copy()
         payload['credentials']['email'] = email
         payload['credentials']['password'] = password
+        
+        logger.info(f"Login attempt for user_id {user_id}, email: {email[:3]}***")
+        
         async with httpx.AsyncClient(headers=self.headers) as client:
             response = await client.post(url, json=payload)
-        response.raise_for_status()
+        
+        logger.info(f"Login response status: {response.status_code}")
+        logger.debug(f"Login response body: {response.text[:500]}")
+        
+        response_data = response.json()
+        logger.info(f"Login response keys: {list(response_data.keys())}")
+        
+        # Check for error in response
+        error_msg = response_data.get('error_msg', '')
+        if error_msg:
+            logger.warning(f"Login error from API: {error_msg}")
+            return response_data
+        
+        # Check HTTP status
+        if response.status_code != 200:
+            logger.error(f"Login HTTP error: {response.status_code}")
+            return {'error_msg': f'HTTP ошибка: {response.status_code}'}
+        
         cookies_str = '; '.join([f"{k}={v}" for k, v in response.cookies.items()])
+        logger.info(f"Received cookies: {len(cookies_str)} chars")
+        
+        if not cookies_str:
+            logger.warning("No cookies received from login response")
+            return {'error_msg': 'Сервер не вернул cookies. Проверьте email/пароль.'}
+        
         self.cookies = cookies_str
         self.headers['Cookie'] = cookies_str
         
@@ -163,7 +189,8 @@ class LingualeoAPIClient:
         async with aiofiles.open(path, 'w', encoding='utf-8') as f:
             await f.write(cookies_str)
         
-        return response.json()
+        logger.info(f"Login successful for user_id {user_id}")
+        return response_data
 
     def add_word(self, word: str, translation: str) -> Dict:
         """
